@@ -1,89 +1,77 @@
 # Setup Switcher
 
-> Switch your Windows display layout and audio devices in one click — or with a global hotkey.
+A small Windows app that switches your monitor layout and default audio devices with a hotkey or from the tray.
 
-[**↓ Download the latest release**](https://github.com/FloreKoen/setup-switcher/releases/latest)
+[Download the latest release](https://github.com/FloreKoen/setup-switcher/releases/latest)
 
 ![Setups grid](docs/screenshot-setups.png)
 
-A **Setup** is a saved bundle of your monitor topology + default audio output + default audio input. Build one for each context you actually switch between — focus mode, racing rig, podcast, work-from-laptop — and jump between them with a global hotkey, the tray menu, or a click.
-
-Each section is independently optional. A "headphones + mic" Setup that leaves your display alone is perfectly fine. So is a "monitor-layout only" Setup that doesn't touch your audio.
-
 ## What it does
 
-- **Monitor topology** — which displays are active, where they sit, which is primary, at what resolution.
-- **Default audio output** — speakers / headphones / HDMI / DAC, whatever you call default.
-- **Default audio input** — mic, including USB headsets and capture devices.
+You save your monitor layout and audio defaults as a Setup. Then you switch between Setups with:
 
-Apply via:
+- a global hotkey (like Ctrl+Alt+1)
+- the tray menu
+- a click on a card
 
-- A **global hotkey** registered system-wide (e.g. `Ctrl+Alt+1`).
-- The **tray menu**, which shows every Setup with the currently-active one marked.
-- A **click on a card** in the main window.
+That's pretty much the whole idea.
 
-## Features
+Each Setup has three parts you can set or leave alone:
 
-- **Snapshot mode** — arrange Windows the way you want, then capture it as a Setup. No fiddly form-filling.
-- **Live partial-match hint** — if your current state matches a Setup's displays but not audio, the header tells you ("Currently: Custom — displays match Racing").
-- **Single-step revert** — a global "undo last switch" hotkey, or the same option in the tray menu.
-- **Update from current state** — re-snapshot an existing Setup in place after rearranging.
-- **Auto-apply on launch** — pick a default Setup to apply on every app start.
-- **Start at login** — autostart, with optional "start minimized to tray." No UAC prompt at any point.
-- **Hotkey conflict detection** — the editor warns when a chord is already used by another Setup or by Revert.
-- **Setup reorder** — up/down arrows on each card; the order shows in the tray menu too.
-- **Dark / Light / System theme.**
+- monitor layout (which screens are on, where they sit, which one is primary, what resolution)
+- default audio output (speakers, headphones, etc.)
+- default audio input (your mic)
 
-## Editor
+Parts you leave empty stay alone when applying. So you can make a Setup that only switches audio. Or only displays. Or all three.
+
+## The editor
 
 ![Editor](docs/screenshot-editor.png)
 
-The editor surfaces only the sections this Setup manages. Cleared sections stay cleared — they're treated as "don't touch when applying."
+You build a Setup by first arranging your displays and audio in Windows the way you want, then clicking "Snapshot current setup." It captures the current state. You give it a name, an emoji and a hotkey.
 
-- Monitor diagram previews the saved layout, with the primary monitor highlighted.
-- Audio dropdowns mark the currently-default device.
-- Dirty-state cancel asks before discarding edits.
+The editor shows a diagram of your monitor layout with the primary one marked. The audio dropdowns flag whichever device is currently the default.
+
+If you change your mind later, hit "Update from current state" to re-snapshot the parts you have set without touching the rest.
 
 ## Settings
 
 ![Settings](docs/screenshot-settings.png)
 
-The Hotkeys panel doubles as a conflict overview — every binding is listed with a warning icon if two actions share a chord.
+- Start at login. No admin rights needed and no UAC prompt.
+- Close button minimizes to the tray instead of quitting.
+- Pick a default Setup that applies on app start.
+- One global hotkey for "revert last switch."
+- The hotkey panel lists every binding so you can spot conflicts.
 
-## Installing
+## Install
 
-Two installer formats on every release. Pick whichever:
+Download the MSI installer from the release page and run it. No admin rights needed.
 
-- **MSI** — standard Windows Installer. Friendly for IT-managed machines and group policy deployment.
-- **NSIS exe** — single-file Nullsoft installer. Smaller, quicker.
+WebView2 runtime is required. Windows 11 already has it.
 
-Either works without admin privileges. WebView2 Runtime is required and is auto-installed on Windows 11; the NSIS installer bundles it for older systems.
+## Requirements
 
-## System requirements
-
-- **Windows 10** version 21H1 or later, **x64**.
-- **WebView2 Runtime** (ships with Windows 11; bundled by the NSIS installer otherwise).
-- No internet connection needed at runtime.
+Windows 10 21H1 or later, 64-bit.
 
 ## Quick start
 
-1. Download and run the installer.
-2. Open Setup Switcher (it lives in the system tray after install).
-3. Arrange your displays and audio defaults in Windows the way you want.
-4. Click **Snapshot current setup** in the main window.
-5. Give it a name, an emoji, and a hotkey, then **Save**.
-6. Rearrange Windows again and snapshot a second Setup. Now press your hotkey.
+1. Download an installer and run it.
+2. Open Setup Switcher. It lives in the system tray.
+3. Arrange your screens and audio in Windows the way you want.
+4. Click "Snapshot current setup."
+5. Name it, give it an emoji and a hotkey, hit Save.
+6. Change your screens or audio in Windows, snapshot a second Setup.
+7. Press your hotkey. The first Setup snaps back.
 
 ## How it works
 
-- **Display switching** via the Windows CCD API (`SetDisplayConfig`). Monitor identity is keyed on `monitorDevicePath`, which is stable across reboots, port changes, and reseating monitors — your Setups don't break when you swap a USB-C cable.
-- **Audio default switching** via the undocumented `IPolicyConfig` COM interface, the same approach used by SoundSwitch / NirSoft / AudioSwitcher. There is no documented userland API for this on Windows; this trick has been stable since Windows 7.
-- **Tray-resident, single-instance** — launching the app a second time surfaces the existing window instead of spawning a duplicate.
+Display switching uses the Windows CCD API. Monitor identity sticks around if you reboot, change ports, or swap a USB-C cable, because we identify each monitor by its stable device path.
 
-## Privacy & telemetry
+Audio switching uses an undocumented COM interface called IPolicyConfig. It's the same trick SoundSwitch and NirSoft use. There is no official Windows API for setting the default audio device from a user app, so this is what you do.
 
-None. Setup Switcher makes no network requests. State is stored locally in `%APPDATA%\com.fl0re.screen-switcher\store.json` — a plain JSON file you can back up, edit, or carry between machines.
+## Privacy
 
-## Project status
+No network requests. State is stored locally in `%APPDATA%\com.fl0re.screen-switcher\store.json`. If you want to back up your Setups, copy that file.
 
-Windows-only by design. Source code lives in a separate private repository — releases here are built from it.
+Source code lives in a separate private repository. Builds here are produced from it.
